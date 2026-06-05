@@ -113,6 +113,19 @@ public class KACCommand implements CommandExecutor {
                     player.sendMessage("半径が不正です");
                     return true;
                 }
+
+                // =====================
+                // 半径制限（ここ追加）
+                // =====================
+                if (radius > 30) {
+                    player.sendMessage("半径は最大30mまでです");
+                    radius = 30;
+                }
+
+                if (radius < 0) {
+                    player.sendMessage("半径は0以上にしてください");
+                    return true;
+                }
             }
 
             // =====================
