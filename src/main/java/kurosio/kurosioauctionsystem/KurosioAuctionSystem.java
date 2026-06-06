@@ -126,7 +126,7 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         ));
 
         Bukkit.broadcastMessage(ChatUtil.color(
-                "&e落札価格: &6&l" + auction.getCurrentPrice() + "円"
+                "&e落札価格: &6&l" + String.format("%,d", auction.getCurrentPrice()) + "円"
         ));
 
         ItemStack item = auction.getItem();

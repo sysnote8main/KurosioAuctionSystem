@@ -196,7 +196,7 @@ public class KACCommand implements CommandExecutor {
                 ChatUtil.send(p, "&a" + player.getName() + "&fさんがオークションを開始しました！");
                 ChatUtil.send(p, "&eアイテム名&f: &f" + displayName);
                 ChatUtil.send(p, "&e開始価格&f: &6" + startPrice + "円");
-                ChatUtil.send(p, "&e入札単位&f: &6" + bidUnit + "円");
+                ChatUtil.send(p, "&e入札単位&f: &6" + String.format("%,d", bidUnit) + "円");
 
                 // =====================
                 // クリック参加UI
@@ -253,8 +253,8 @@ public class KACCommand implements CommandExecutor {
 
             ChatUtil.send(player, ChatUtil.PREFIX);
             ChatUtil.send(player, "&eID: &f" + auction.getAuctionId());
-            ChatUtil.send(player, "&e開始価格: &6&l" + auction.getStartPrice() + "円");
-            ChatUtil.send(player, "&e現在価格: &6&l" + auction.getCurrentPrice() + "円");
+            ChatUtil.send(player, "&e開始価格: &6&l" + String.format("%,d", auction.getStartPrice()) + "円");
+            ChatUtil.send(player, "&e現在価格: &6&l" + String.format("%,d", auction.getCurrentPrice()) + "円");
             ItemStack item = auction.getItem();
             ItemMeta meta = item.getItemMeta();
 
@@ -333,12 +333,12 @@ public class KACCommand implements CommandExecutor {
 
             ChatUtil.send(
                     player,
-                    ChatUtil.PREFIX + "&a入札しました！ &6&l" + newPrice + "円"
+                    ChatUtil.PREFIX + "&a入札しました！ &6&l" + String.format("%,d", newPrice) + "円"
             );
 
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.sendMessage(ChatUtil.color(
-                        "&c現在の入札額: &6" + newPrice + "円"
+                        "&c現在の入札額: &6" + String.format("%,d", newPrice) + "円"
                 ));
             }
 
@@ -430,7 +430,7 @@ public class KACCommand implements CommandExecutor {
             manager.setAutoBid(player.getUniqueId(), limit);
 
             player.sendMessage(ChatUtil.color(
-                    ChatUtil.PREFIX + "&a自動入札を設定しました！ &6上限:" + limit + "円"
+                    ChatUtil.PREFIX + "&a自動入札を設定しました！ &6上限:" + String.format("%,d", limit) + "円"
             ));
 
             return true;
