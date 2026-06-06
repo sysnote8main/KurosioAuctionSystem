@@ -305,7 +305,23 @@ public class KACCommand implements CommandExecutor {
                 return true;
             }
 
+
+
+
+            if (player.getUniqueId().equals(auction.getHighestBidder())) {
+
+                player.sendMessage(ChatUtil.color(
+                        ChatUtil.PREFIX +
+                                "&c既に最高入札者です。 &7(現在: &6" +
+                                String.format("%,d", auction.getCurrentPrice()) +
+                                "円&7)"
+                ));
+
+                return true;
+            }
+
             long newPrice;
+
 
 // 金額指定あり
             if (args.length >= 2) {
@@ -317,15 +333,44 @@ public class KACCommand implements CommandExecutor {
                     return true;
                 }
 
-                // 現在価格より低いのはNG
-                if (newPrice <= auction.getCurrentPrice()) {
-                    player.sendMessage("現在価格より高くしてください");
-                    return true;
-                }
-
             } else {
+
                 // 通常入札（+bidUnit）
                 newPrice = auction.getCurrentPrice() + auction.getBidUnit();
+            }
+
+            long bidUnit = auction.getBidUnit();
+            long currentPrice = auction.getCurrentPrice();
+
+// 最低入札額
+            long minimumPrice = currentPrice + bidUnit;
+
+            if (newPrice < minimumPrice) {
+
+                player.sendMessage(ChatUtil.color(
+                        ChatUtil.PREFIX +
+                                "&c最低入札額は &6" +
+                                String.format("%,d", minimumPrice) +
+                                "円&cです。"
+                ));
+
+                return true;
+            }
+
+            long diff = newPrice - currentPrice;
+
+// 入札単位チェック
+            // 入札単位チェック
+            if (diff % bidUnit != 0) {
+
+                player.sendMessage(ChatUtil.color(
+                        ChatUtil.PREFIX +
+                                "&c入札額は &6" +
+                                String.format("%,d", bidUnit) +
+                                "円&c単位で入力してください。"
+                ));
+
+                return true;
             }
 
             double money = VaultManager.getEconomy().getBalance(player);
@@ -335,7 +380,7 @@ public class KACCommand implements CommandExecutor {
                 return true;
             }
 
-            VaultManager.getEconomy().withdrawPlayer(player, newPrice);
+
 
             auction.setCurrentPrice(newPrice);
             auction.setLastBidTime(System.currentTimeMillis());
@@ -500,21 +545,22 @@ public class KACCommand implements CommandExecutor {
         if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
 
             ChatUtil.send(sender, ChatUtil.PREFIX);
-            ChatUtil.send(sender, "&7=======コマンド一覧=======");
+            ChatUtil.send(sender, "&e=======コマンド一覧=======");
             ChatUtil.send(sender, "&6&lコマンド一覧");
             ChatUtil.send(sender, "&a/kac start <開始価格> [入札単位] [半径]");
-            ChatUtil.send(sender, "&6オークションを開始");
-            ChatUtil.send(sender, "&f入札単位・半径は任意。任意の半径内にｵｰｸｼｮﾝ開始を通知させます。");
+            ChatUtil.send(sender, "&6&lオークションを開始");
+            ChatUtil.send(sender, "&f※入札単位・半径は任意。任意の半径内にｵｰｸｼｮﾝ開始を通知させます。");
             ChatUtil.send(sender, "&a/kac join <ID>  &f-オークションへ参加");
-            ChatUtil.send(sender, "開始通知の&3メッセージクリック&fでも参加できます。");
-            ChatUtil.send(sender, "&6/kac leave      &f-オークションから退出");
+            ChatUtil.send(sender, "開始通知の&3&lメッセージクリック&fでも参加できます。");
+            ChatUtil.send(sender, "&a/kac leave      &f-オークションから退出");
             ChatUtil.send(sender, "&f※最高入札者の場合退出しても落札者となります。");
+            ChatUtil.send(sender, "&a/kac bid        &f-最低入札単位分入札します。");
             ChatUtil.send(sender, "&a/kac bid [金額]  &f-入札します。");
-            ChatUtil.send(sender, "&f金額の誤入力に注意");
-            ChatUtil.send(sender, "&6/kac autobid <上限額> &f-自動入札を設定します。");
+            ChatUtil.send(sender, "&f※金額の誤入力に注意");
+            ChatUtil.send(sender, "&a/kac autobid <上限額> &f-自動入札を設定します。");
             ChatUtil.send(sender, "&a/kac exlist     &f-出品状況を表示 &c出品者のみ");
-            ChatUtil.send(sender, "&6/kac cancel     &f-出品中オークションを中止 &c出品者のみ");
-            ChatUtil.send(sender, "&7=======================");
+            ChatUtil.send(sender, "&a/kac cancel     &f-出品中オークションを中止 &c出品者のみ");
+            ChatUtil.send(sender, "&e========================");
 
             return true;
         }
