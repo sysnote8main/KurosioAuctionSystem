@@ -17,6 +17,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.UUID;
+
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -32,6 +34,7 @@ public class KACCommand implements CommandExecutor {
                              String label,
                              String[] args) {
 
+
         if (args.length == 1 && args[0].equalsIgnoreCase("test")) {
 
             String id = KurosioAuctionSystem
@@ -43,6 +46,14 @@ public class KACCommand implements CommandExecutor {
 
             return true;
         }
+
+        if (args.length == 0) {
+            sender.sendMessage(ChatUtil.color(
+                    ChatUtil.PREFIX + "&a/kac help &fでヘルプを表示できます。"
+            ));
+            return true;
+        }
+
 
         if (args.length == 1 && args[0].equalsIgnoreCase("money")) {
 
@@ -400,6 +411,7 @@ public class KACCommand implements CommandExecutor {
 
             return true;
         }
+
         if (args.length == 2 && args[0].equalsIgnoreCase("autobid")) {
 
             if (!(sender instanceof Player)) {
@@ -432,6 +444,77 @@ public class KACCommand implements CommandExecutor {
             player.sendMessage(ChatUtil.color(
                     ChatUtil.PREFIX + "&a自動入札を設定しました！ &6上限:" + String.format("%,d", limit) + "円"
             ));
+
+            return true;
+        }
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("cancel")) {
+
+            if (!(sender instanceof Player)) {
+                sender.sendMessage("プレイヤーのみ実行可能");
+                return true;
+            }
+
+            Player player = (Player) sender;
+
+            AuctionManager manager =
+                    KurosioAuctionSystem.getInstance().getAuctionManager();
+
+            String auctionId =
+                    manager.getSellerAuction(player.getUniqueId());
+
+            if (auctionId == null) {
+                player.sendMessage("出品中のオークションはありません");
+                return true;
+            }
+
+            AuctionData auction = manager.getAuction(auctionId);
+
+            if (auction == null) {
+                player.sendMessage("オークションが見つかりません");
+                return true;
+            }
+
+            // アイテム返却
+            player.getInventory().addItem(auction.getItem());
+
+            // 参加者退出
+            for (UUID uuid : manager.getAllJoinedPlayers(auctionId)) {
+                manager.leaveAuction(uuid);
+            }
+
+            // 出品者解除
+            manager.unregisterSeller(player.getUniqueId());
+
+            // オークション削除
+            manager.removeAuction(auctionId);
+
+            Bukkit.broadcastMessage(ChatUtil.color(
+                    ChatUtil.PREFIX +
+                            "&cオークションが出品者によって中止されました &7(ID:\" + auctionId + \")"
+            ));
+
+            return true;
+        }
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("help")) {
+
+            ChatUtil.send(sender, ChatUtil.PREFIX);
+            ChatUtil.send(sender, "&7=======コマンド一覧=======");
+            ChatUtil.send(sender, "&6&lコマンド一覧");
+            ChatUtil.send(sender, "&a/kac start <開始価格> [入札単位] [半径]");
+            ChatUtil.send(sender, "&6オークションを開始");
+            ChatUtil.send(sender, "&f入札単位・半径は任意。任意の半径内にｵｰｸｼｮﾝ開始を通知させます。");
+            ChatUtil.send(sender, "&a/kac join <ID>  &f-オークションへ参加");
+            ChatUtil.send(sender, "開始通知の&3メッセージクリック&fでも参加できます。");
+            ChatUtil.send(sender, "&6/kac leave      &f-オークションから退出");
+            ChatUtil.send(sender, "&f※最高入札者の場合退出しても落札者となります。");
+            ChatUtil.send(sender, "&a/kac bid [金額]  &f-入札します。");
+            ChatUtil.send(sender, "&f金額の誤入力に注意");
+            ChatUtil.send(sender, "&6/kac autobid <上限額> &f-自動入札を設定します。");
+            ChatUtil.send(sender, "&a/kac exlist     &f-出品状況を表示 &c出品者のみ");
+            ChatUtil.send(sender, "&6/kac cancel     &f-出品中オークションを中止 &c出品者のみ");
+            ChatUtil.send(sender, "&7=======================");
 
             return true;
         }

@@ -1,6 +1,7 @@
 package kurosio.kurosioauctionsystem;
 
 import kurosio.kurosioauctionsystem.command.KACCommand;
+import kurosio.kurosioauctionsystem.command.KACTabCompleter;
 import kurosio.kurosioauctionsystem.data.AuctionData;
 import kurosio.kurosioauctionsystem.manager.AuctionManager;
 import kurosio.kurosioauctionsystem.manager.VaultManager;
@@ -44,6 +45,7 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         loadAuctions();
 
         getCommand("kac").setExecutor(new KACCommand());
+        getCommand("kac").setTabCompleter(new KACTabCompleter());
 
         //  20秒
         getServer().getScheduler().runTaskTimer(this, () -> {
