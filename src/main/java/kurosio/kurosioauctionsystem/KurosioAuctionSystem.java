@@ -6,6 +6,7 @@ import kurosio.kurosioauctionsystem.data.AuctionData;
 import kurosio.kurosioauctionsystem.manager.AuctionManager;
 import kurosio.kurosioauctionsystem.manager.VaultManager;
 import kurosio.kurosioauctionsystem.util.ChatUtil;
+import kurosio.kurosioauctionsystem.manager.HistoryManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -22,6 +23,7 @@ public final class KurosioAuctionSystem extends JavaPlugin {
     private static KurosioAuctionSystem instance;
 
     private AuctionManager auctionManager;
+    private HistoryManager historyManager;
 
     private File dataFile;
     private YamlConfiguration dataConfig;
@@ -39,6 +41,7 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         }
 
         auctionManager = new AuctionManager(this);
+        historyManager = new HistoryManager(this);
 
         saveDefaultConfig();
 
@@ -80,6 +83,10 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         return auctionManager;
     }
 
+    public HistoryManager getHistoryManager() {
+        return historyManager;
+    }
+
     // =========================
     //  終了処理
     // =========================
@@ -89,6 +96,8 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         if (!auction.isActive()) return;
 
         auction.setActive(false);
+
+        auction.setEndTime(System.currentTimeMillis());
 
         AuctionManager manager = auctionManager;
 
@@ -195,6 +204,11 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         manager.unregisterSeller(
                 auction.getSellerUUID()
         );
+
+
+        KurosioAuctionSystem.getInstance()
+                .getHistoryManager()
+                .saveHistory(auction);
 
         manager.removeAuction(
                 auction.getAuctionId()

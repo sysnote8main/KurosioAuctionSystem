@@ -13,9 +13,14 @@ public class AuctionData {
     private long startPrice;
     private long currentPrice;
     private long bidUnit;
+    private long startTime;
 
     private long lastBidTime;
     private boolean active = true;
+
+    private long endTime;
+
+    private String mythicItemId;
 
     public AuctionData(String auctionId,
                        UUID sellerUUID,
@@ -32,6 +37,7 @@ public class AuctionData {
         this.bidUnit = bidUnit;
         this.active = true;
         this.lastBidTime = System.currentTimeMillis();
+        this.startTime = System.currentTimeMillis();
     }
 
     // =====================
@@ -113,4 +119,26 @@ public class AuctionData {
     public void setHighestOfferPrice(long highestOfferPrice) {
         this.highestOfferPrice = highestOfferPrice;
     }
+
+
+    public long getStartTime() {
+        return startTime;
+    }
+
+    public String getMythicItemId() {
+        return mythicItemId;
+    }
+
+    public void setMythicItemId(String mythicItemId) {
+        this.mythicItemId = mythicItemId;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
+    }
+
 }
