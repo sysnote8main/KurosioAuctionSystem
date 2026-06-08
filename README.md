@@ -26,3 +26,11 @@ Minecraftサーバー内等でオークションができるプラグイン
 
 ``/kac cancel``  ーオークションを中止 (出品者のみ)  
 
+##
+
+### License
+
+This project is licensed under the GNU General Public License v3.0 (GPL-3.0).
+
+See the LICENSE file for details.
+
