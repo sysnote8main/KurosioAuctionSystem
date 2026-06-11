@@ -23,7 +23,7 @@ public class AuctionManager {
     private final Map<UUID, String> joinedAuctions = new HashMap<>();
 
     // 自動入札上限
-    private final Map<UUID, Long> autoBids = new HashMap<>();
+    private final Map<UUID, Long> autoBidTime = new HashMap<>();
 
     public AuctionManager(KurosioAuctionSystem plugin) {
         this.plugin = plugin;
@@ -114,17 +114,40 @@ public class AuctionManager {
     // AutoBid
     // =========================
 
+    // =========================
+// AutoBid
+// =========================
+
+    // 自動入札上限
+    private final Map<UUID, Long> autoBids = new HashMap<>();
+
+
     public void setAutoBid(UUID uuid, long limit) {
+
         autoBids.put(uuid, limit);
+
+        autoBidTime.put(
+                uuid,
+                System.currentTimeMillis()
+        );
     }
 
     public Long getAutoBid(UUID uuid) {
         return autoBids.get(uuid);
     }
 
+    public Long getAutoBidTime(UUID uuid) {
+        return autoBidTime.get(uuid);
+    }
 
     public Map<UUID, Long> getAutoBids() {
         return autoBids;
+    }
+
+    public void removeAutoBid(UUID uuid) {
+
+        autoBids.remove(uuid);
+        autoBidTime.remove(uuid);
     }
 
     // =========================
@@ -135,7 +158,9 @@ public class AuctionManager {
 
         joinedAuctions.remove(uuid);
         sellerAuctions.remove(uuid);
+
         autoBids.remove(uuid);
+        autoBidTime.remove(uuid);
     }
 
     // =========================
@@ -208,9 +233,6 @@ public class AuctionManager {
         return receivers;
     }
 
-    public void removeAutoBid(UUID uuid) {
-        autoBids.remove(uuid);
-    }
 
     public void startTimer(AuctionData auction) {
 

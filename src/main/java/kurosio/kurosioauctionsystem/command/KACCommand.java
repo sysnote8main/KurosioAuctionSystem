@@ -443,6 +443,7 @@ public class KACCommand implements CommandExecutor {
                 auction.setCurrentPrice(newPrice);
                 auction.setHighestOfferPrice(newPrice);
                 auction.setHighestBidder(player.getUniqueId());
+                auction.setLastAutoBid(false);
                 KurosioAuctionSystem.getInstance().saveAuctions();
             }
 
@@ -583,11 +584,6 @@ public class KACCommand implements CommandExecutor {
                 return true;
             }
 
-            manager.setAutoBid(
-                    player.getUniqueId(),
-                    limit
-            );
-
             AuctionData auction =
                     manager.getAuction(auctionId);
 
@@ -620,6 +616,12 @@ public class KACCommand implements CommandExecutor {
 
                 return true;
             }
+
+            manager.setAutoBid(
+                    player.getUniqueId(),
+                    limit
+            );
+
 
 // 自分が最高入札者でなければ即時自動入札を試行
             processAutoBids(
@@ -732,16 +734,9 @@ public class KACCommand implements CommandExecutor {
 
         Map<UUID, Long> limits = new HashMap<>();
 
-        // =========================
-        // ① 出品者も強制的に参加扱い
-        // =========================
-        UUID seller = auction.getSellerUUID();
-
-        limits.put(seller, Long.MAX_VALUE); // 出品者は競り参加（無限上限扱い）
-
-        // =========================
-        // 現在の最高入札者
-        // =========================
+// =========================
+// 現在の最高入札者
+// =========================
         UUID currentWinner = auction.getHighestBidder();
 
         if (currentWinner != null) {
@@ -770,25 +765,40 @@ public class KACCommand implements CommandExecutor {
         }
 
         // =========================
-        // 単独処理（超重要修正）
+        // 単独処理
         // =========================
         if (limits.size() == 1) {
 
             UUID only = limits.keySet().iterator().next();
 
-            long start = auction.getStartPrice();
+            if (auction.getHighestBidder() == null) {
 
-            // ★ここが重要：開始価格を必ず反映
-            if (auction.getCurrentPrice() < start) {
+                auction.setCurrentPrice(
+                        auction.getStartPrice()
+                );
 
-                auction.setCurrentPrice(start);
                 auction.setHighestBidder(only);
-                auction.setHighestOfferPrice(limits.get(only));
-                auction.setLastBidTime(System.currentTimeMillis());
 
-                notifyAutoUpdate(manager, auction, start, only);
+                auction.setHighestOfferPrice(
+                        limits.get(only)
+                );
 
-                KurosioAuctionSystem.getInstance().saveAuctions();
+                auction.setLastAutoBid(true);
+
+                auction.setLastBidTime(
+                        System.currentTimeMillis()
+                );
+
+                notifyAutoUpdate(
+                        manager,
+                        auction,
+                        auction.getStartPrice(),
+                        only
+                );
+
+                KurosioAuctionSystem.getInstance()
+                        .saveAuctions();
+
                 return true;
             }
 
@@ -796,12 +806,43 @@ public class KACCommand implements CommandExecutor {
         }
 
         // =========================
-        // ソート
-        // =========================
+// ソート
+// =========================
         List<Map.Entry<UUID, Long>> sorted =
                 new ArrayList<>(limits.entrySet());
 
-        sorted.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
+        sorted.sort((a, b) -> {
+
+            // まず上限額で比較
+            int limitCompare =
+                    Long.compare(
+                            b.getValue(),
+                            a.getValue()
+                    );
+
+            if (limitCompare != 0) {
+                return limitCompare;
+            }
+
+            // 同額なら設定時刻が早い方を優先
+            Long aTime =
+                    manager.getAutoBidTime(
+                            a.getKey()
+                    );
+
+            Long bTime =
+                    manager.getAutoBidTime(
+                            b.getKey()
+                    );
+
+            if (aTime == null) aTime = Long.MAX_VALUE;
+            if (bTime == null) bTime = Long.MAX_VALUE;
+
+            return Long.compare(
+                    aTime,
+                    bTime
+            );
+        });
 
         UUID topUser = sorted.get(0).getKey();
         long topLimit = sorted.get(0).getValue();
@@ -820,8 +861,6 @@ public class KACCommand implements CommandExecutor {
         UUID priceOwner = topUser;
 
         boolean autoTriggered = true;
-
-        auction.setLastAutoBid(autoTriggered);
 
         auction.setHighestBidder(topUser);
         auction.setHighestOfferPrice(topLimit);
@@ -845,7 +884,6 @@ public class KACCommand implements CommandExecutor {
             if (target == null) continue;
 
             target.sendMessage(ChatUtil.color(
-                    ChatUtil.PREFIX +
                             "&c現在の入札額: &6" +
                             String.format("%,d", newPrice) +
                             "円" +
