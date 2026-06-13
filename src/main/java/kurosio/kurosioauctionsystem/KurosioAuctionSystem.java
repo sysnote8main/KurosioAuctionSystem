@@ -27,10 +27,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import net.md_5.bungee.api.chat.BaseComponent;
 
 import static kurosio.kurosioauctionsystem.util.ChatUtil.color;
 
@@ -587,16 +583,6 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         }
     }
 
-    private String formatJST(long millis) {
-
-        return Instant.ofEpochMilli(millis)
-                .atZone(ZoneId.of("Asia/Tokyo"))
-                .format(
-                        DateTimeFormatter.ofPattern(
-                                "yyyy-MM-dd HH:mm:ss"
-                        )
-                );
-    }
 
     private void loadAuctions() {
 

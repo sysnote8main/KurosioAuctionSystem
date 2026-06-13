@@ -2,10 +2,6 @@ package kurosio.kurosioauctionsystem.manager;
 
 import kurosio.kurosioauctionsystem.KurosioAuctionSystem;
 import kurosio.kurosioauctionsystem.data.AuctionData;
-import kurosio.kurosioauctionsystem.util.ChatUtil;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
@@ -45,9 +41,6 @@ public class AuctionManager {
         return auctions.get(auctionId);
     }
 
-    public boolean exists(String auctionId) {
-        return auctions.containsKey(auctionId);
-    }
 
     public Collection<AuctionData> getAuctions() {
         return auctions.values();
@@ -81,9 +74,6 @@ public class AuctionManager {
         joinedAuctions.put(uuid, auctionId);
     }
 
-    public void unregisterJoin(UUID uuid) {
-        joinedAuctions.remove(uuid);
-    }
 
     public String getJoinedAuction(UUID uuid) {
         return joinedAuctions.get(uuid);
@@ -93,9 +83,6 @@ public class AuctionManager {
         return joinedAuctions.containsKey(uuid);
     }
 
-    public Map<UUID, String> getJoinedAuctions() {
-        return joinedAuctions;
-    }
 
     public List<UUID> getAllJoinedPlayers(String auctionId) {
 
@@ -128,9 +115,6 @@ public class AuctionManager {
         );
     }
 
-    public Long getAutoBid(UUID uuid) {
-        return autoBids.get(uuid);
-    }
 
     public Long getAutoBidTime(UUID uuid) {
         return autoBidTime.get(uuid);
@@ -229,46 +213,4 @@ public class AuctionManager {
         return receivers;
     }
 
-
-    public void startTimer(AuctionData auction) {
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                long remaining = auction.getEndTime() - System.currentTimeMillis();
-
-                if (remaining <= 0) {
-                    cancel();
-                    plugin.finishAuction(auction);
-                    return;
-                }
-
-                long sec = remaining / 1000;
-
-                if (sec == 5 || sec == 3 || sec == 2 || sec == 1) {
-
-                    for (UUID uuid : getReceivers(auction)) {
-
-                        Player target = Bukkit.getPlayer(uuid);
-
-                        if (target == null) continue;
-
-                        target.sendMessage(ChatUtil.color(
-                                        "&eあと" + sec + "秒"
-                        ));
-                    }
-                }
-            }
-        }.runTaskTimer(plugin, 0L, 20L);
-    }
-
-    private boolean lastAutoBid;
-    public boolean isLastAutoBid() {
-        return lastAutoBid;
-    }
-
-    public void setLastAutoBid(boolean lastAutoBid) {
-        this.lastAutoBid = lastAutoBid;
-    }
 }
