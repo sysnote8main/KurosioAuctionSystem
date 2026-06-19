@@ -403,6 +403,15 @@ public class KACCommand implements CommandExecutor {
                 return true;
             }
 
+            if (player.getUniqueId().equals(auction.getSellerUUID())) {
+                player.sendMessage(color(
+                        ChatUtil.PREFIX +
+                                "&c自分のオークションには入札できません。"
+                ));
+
+                return true;
+            }
+
 // 金額指定あり
             long newPrice;
 
