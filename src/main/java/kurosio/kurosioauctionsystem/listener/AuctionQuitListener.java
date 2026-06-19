@@ -6,6 +6,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.ArrayList;
+
 public class AuctionQuitListener implements Listener {
 
     @EventHandler
@@ -15,7 +17,7 @@ public class AuctionQuitListener implements Listener {
                 KurosioAuctionSystem.getInstance();
 
         for (AuctionData auction :
-                plugin.getAuctionManager().getAuctions()) {
+                new ArrayList<>(plugin.getAuctionManager().getAuctions())) {
 
             if (!auction.isActive()) continue;
 
