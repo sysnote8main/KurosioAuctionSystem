@@ -238,6 +238,11 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                         ChatUtil.PREFIX +
                                 "&e入札者がいなかったためアイテムを返却しました。"
                 ));
+            } else {
+                returnManager.addReturn(
+                        auction.getSellerUUID(),
+                        auction.getItem()
+                );
             }
         }
 
