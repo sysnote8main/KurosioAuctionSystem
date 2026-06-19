@@ -391,7 +391,9 @@ public final class KurosioAuctionSystem extends JavaPlugin {
 
         if (auction == null) return;
 
-        for (UUID uuid : auctionManager.getReceivers(auction)) {
+        Set<UUID> receivers = auctionManager.getReceivers(auction);
+
+        for (UUID uuid : receivers) {
 
             Player target = Bukkit.getPlayer(uuid);
 
@@ -403,12 +405,6 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                             auction.getAuctionId() +
                             ")"
             ));
-        }
-        for (UUID uuid : auctionManager.getReceivers(auction)) {
-
-            Player target = Bukkit.getPlayer(uuid);
-
-            if (target == null) continue;
 
             target.sendMessage(color(
                     "&7理由: &f" + reason
