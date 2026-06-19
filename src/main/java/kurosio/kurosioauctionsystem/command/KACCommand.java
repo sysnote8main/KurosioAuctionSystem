@@ -275,6 +275,7 @@ public class KACCommand implements CommandExecutor {
         if (args.length == 1 && args[0].equalsIgnoreCase("exlist")) {
 
             if (!(sender instanceof Player)) {
+                sender.sendMessage("プレイヤーのみ実行可能");
                 return true;
             }
 
