@@ -920,6 +920,10 @@ public class KACCommand implements CommandExecutor {
             );
         });
 
+        if (sorted.size() < 2) {
+            return false;
+        }
+
         UUID topUser = sorted.get(0).getKey();
         long topLimit = sorted.get(0).getValue();
 
