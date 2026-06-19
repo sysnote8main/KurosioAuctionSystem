@@ -84,7 +84,7 @@ public final class KurosioAuctionSystem extends JavaPlugin {
 
             long now = System.currentTimeMillis();
 
-            for (AuctionData auction : auctionManager.getAuctions()) {
+            for (AuctionData auction : new ArrayList<>(auctionManager.getAuctions())) {
 
                 if (!auction.isActive()) continue;
 
