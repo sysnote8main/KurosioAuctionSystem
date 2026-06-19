@@ -579,6 +579,16 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                         auction.getHighestBidder().toString()
                 );
             }
+
+            dataConfig.set(
+                    path + ".highest-offer-price",
+                    auction.getHighestOfferPrice()
+            );
+
+            dataConfig.set(
+                    path + ".last-auto-bid",
+                    auction.isLastAutoBid()
+            );
         }
 
         try {
@@ -594,6 +604,8 @@ public final class KurosioAuctionSystem extends JavaPlugin {
         if (dataConfig.getConfigurationSection("auctions") == null) {
             return;
         }
+
+        long now = System.currentTimeMillis();
 
         for (String id : dataConfig.getConfigurationSection("auctions").getKeys(false)) {
 
@@ -617,6 +629,18 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                     dataConfig.getLong(path + ".last-bid-time")
             );
 
+            auction.setStartTime(
+                    dataConfig.getLong(path + ".start-time")
+            );
+
+            auction.setHighestOfferPrice(
+                    dataConfig.getLong(path + ".highest-offer-price")
+            );
+
+            auction.setLastAutoBid(
+                    dataConfig.getBoolean(path + ".last-auto-bid")
+            );
+
             String bidder = dataConfig.getString(path + ".highestBidder");
 
             if (bidder != null && !bidder.equalsIgnoreCase("NONE")) {
@@ -625,12 +649,40 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                 );
             }
 
-            getHistoryManager().saveHistory(auction);
+            boolean wasActive = dataConfig.getBoolean(path + ".active", true);
+            long elapsed = now - auction.getLastBidTime();
+            boolean expired = elapsed >= 35000;
 
-            returnManager.addReturn(
-                    auction.getSellerUUID(),
-                    auction.getItem()
-            );
+            if (wasActive && !expired) {
+
+                // アクティブオークションを再開
+                auctionManager.addAuction(auction);
+                auctionManager.registerSeller(
+                        auction.getSellerUUID(),
+                        id
+                );
+                auctionManager.registerJoin(
+                        auction.getSellerUUID(),
+                        id
+                );
+
+                if (auction.getHighestBidder() != null) {
+                    auctionManager.registerJoin(
+                            auction.getHighestBidder(),
+                            id
+                    );
+                }
+
+            } else {
+
+                // ダウンタイム中に終了: 履歴保存 + アイテム返却
+                auction.setActive(false);
+                getHistoryManager().saveHistory(auction);
+                returnManager.addReturn(
+                        auction.getSellerUUID(),
+                        auction.getItem()
+                );
+            }
         }
 
         dataConfig.set("auctions", null);
