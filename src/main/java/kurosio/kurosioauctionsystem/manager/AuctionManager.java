@@ -121,7 +121,7 @@ public class AuctionManager {
     }
 
     public Map<UUID, Long> getAutoBids() {
-        return autoBids;
+        return Collections.unmodifiableMap(autoBids);
     }
 
     public void removeAutoBid(UUID uuid) {
