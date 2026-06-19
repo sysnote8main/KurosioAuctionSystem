@@ -503,34 +503,8 @@ public final class KurosioAuctionSystem extends JavaPlugin {
                     path + ".seller.name",
                     Bukkit.getOfflinePlayer(seller).getName()
             );
-            UUID bidder = auction.getHighestBidder();
-
-            if (bidder != null) {
-
-                dataConfig.set(
-                        path + ".bidder.uuid",
-                        bidder.toString()
-                );
-
-                dataConfig.set(
-                        path + ".bidder.name",
-                        Bukkit.getOfflinePlayer(bidder).getName()
-                );
-
-            } else {
-
-                dataConfig.set(path + ".bidder.uuid", "NONE");
-                dataConfig.set(path + ".bidder.name", "NONE");
-            }
 
             ItemStack item = auction.getItem();
-            ItemMeta meta = item.getItemMeta();
-
-            String displayName =
-                    (meta != null && meta.hasDisplayName())
-                            ? meta.getDisplayName()
-                            : item.getType().name();
-
 
             dataConfig.set(
                     path + ".item",
