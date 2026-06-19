@@ -137,7 +137,7 @@ public class AuctionManager {
     public void leaveAuction(UUID uuid) {
 
         joinedAuctions.remove(uuid);
-        sellerAuctions.remove(uuid);
+        // sellerAuctions は削除しない（cleanupAuction 内で unregisterSeller が別途呼ばれる）
 
         autoBids.remove(uuid);
         autoBidTime.remove(uuid);
