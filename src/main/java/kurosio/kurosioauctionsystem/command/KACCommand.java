@@ -305,10 +305,7 @@ public class KACCommand implements CommandExecutor {
                 return true;
             }
 
-            AuctionData auction = KurosioAuctionSystem
-                    .getInstance()
-                    .getAuctionManager()
-                    .getAuction(auctionId);
+            AuctionData auction = manager.getAuction(auctionId);
 
             if (auction == null) {
                 player.sendMessage("オークション情報が見つかりません");
